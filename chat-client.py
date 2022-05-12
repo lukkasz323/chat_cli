@@ -1,6 +1,8 @@
 import socket
 
 if __name__ == '__main__':
-    client = socket.socket()
-    print('Client: ')
-    # print(socket.create_connection())
+    HOST = 'localhost'
+    PORT = 50001
+
+    with socket.create_connection((HOST, PORT)) as client:
+        pass
