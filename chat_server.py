@@ -22,4 +22,4 @@ if __name__ == '__main__':
                 if not data: break
                 decoded = data.decode()
                 print(decoded)
-    print('Server closed.')
+    print('Server closed.\n')

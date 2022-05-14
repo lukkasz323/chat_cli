@@ -1,5 +1,8 @@
 import socket
 
+def exception(msg):
+    print(f'\nEXCEPTION: {msg}\n')
+
 def chat(prefix=''):
     inp = input(f'{prefix}> ')
     encoded = inp.encode()
@@ -18,15 +21,14 @@ if __name__ == '__main__':
                 try:
                     print('Please input your name:')
                     chat('Name')
-
-                    print('Connection closed.')
-                except Exception as exc:
-                    print(exc)
+                    print('Connection closed.\n')
+                except Exception as msg:
+                    exception(msg)
                 break
-        except Exception as exc:
-            print(exc)
+        except Exception as msg:
+            exception(msg)
             if attempt < 10:
                 attempt += 1
             else:
-                print("Failed to connect to the server.")
+                print("Failed to connect to the server.\n")
                 break
