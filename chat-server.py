@@ -14,7 +14,12 @@ if __name__ == '__main__':
 
         print("Awaiting connections...")
         conn, addr = server.accept()
-        print(addr, 'has connected.')
-        with conn.recv(64) as data:
-            print(data)
+        with conn:
+            name = conn.recv(64)
+            print(addr, 'has connected as', name)
+            while True:
+                data = conn.recv(64)
+                if not data: break
+                decoded = data.decode()
+                print(decoded)
     print('Server closed.')
