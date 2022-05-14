@@ -1,15 +1,6 @@
 import socket
-
-def exception(e):
-    print(f'\nEXCEPTION: {e}\n')
-
-def chat(prefix=''):
-    inp = input(f'{prefix}> ')
-    inp_bytes = inp.encode()
-    client.sendall(inp_bytes)
-
-def receive():
-    msg_bytes= client.recv(64)
+import time
+from chat import exception
 
 if __name__ == '__main__':
     PORT = 50001
@@ -23,11 +14,14 @@ if __name__ == '__main__':
     while True:
         print(f'Connecting to ({HOST}, {PORT})... [{attempt}]')
         try:
+            # Connection
             with socket.create_connection((HOST, PORT)) as client:
                 print('Connected to', client.getpeername())
                 client.sendall(name_bytes)
                 while True:
-                    chat()
+                    inp = input('> ')
+                    inp_bytes = inp.encode()
+                    client.sendall(inp_bytes)
                     break
             print('Connection closed.\n')
             break

@@ -1,6 +1,8 @@
 import socket
 import time
 
+from chat import exception
+
 if __name__ == '__main__':
     PORT = 50001
     HOST = ''
@@ -9,6 +11,7 @@ if __name__ == '__main__':
 
     print('[SERVER]\n')
     print('Starting server...')
+    # Start server and wait for connections
     with socket.create_server((HOST, PORT)) as server:
         print('Server:', server.getsockname())
         server.listen()
@@ -16,6 +19,7 @@ if __name__ == '__main__':
         print("Awaiting connections...")
         conn, addr = server.accept()
         try:
+            # Connection
             with conn:
                 name = ''
                 name_bytes = conn.recv(64)
@@ -28,7 +32,7 @@ if __name__ == '__main__':
                     msg = msg_bytes.decode()
                     print(msg)
         except Exception as e:
-            print(e)
+            exception(e)
         finally:
             if name:
                 print(f'{name} has disconnected.')
