@@ -1,5 +1,5 @@
 @ECHO off
 
-python chat_server.py
+python chat-server.py
 
 PAUSE

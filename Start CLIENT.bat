@@ -1,5 +1,5 @@
 @ECHO off
 
-python chat_client.py
+python chat-client.py
 
 PAUSE
