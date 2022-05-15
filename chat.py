@@ -1,2 +1,2 @@
 def exception(e):
-    print(f'\nEXCEPTION: {e}\n')
+    print(f'EXCEPTION: {e}')

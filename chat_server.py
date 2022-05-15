@@ -8,6 +8,7 @@ if __name__ == '__main__':
     HOST = ''
     motd = 'Welcome to the server!'
     motd_bytes = motd.encode()
+    name = ''
 
     print('[SERVER]\n')
     print('Starting server...')
@@ -21,16 +22,13 @@ if __name__ == '__main__':
         try:
             # Connection
             with conn:
-                name = ''
-                name_bytes = conn.recv(64)
+                name_bytes = conn.recv(64) # 1st relay
                 name = name_bytes.decode()
                 print(f'{addr} has connected as {name}.')
-                conn.sendall(motd_bytes)
-                while True:
-                    msg_bytes = conn.recv(64)
-                    if not msg_bytes: break
-                    msg = msg_bytes.decode()
-                    print(msg)
+                conn.sendall(motd_bytes) # 2nd relay
+                msg_bytes = conn.recv(64) # 3rd relay
+                msg = msg_bytes.decode()
+                print(f'{name}: {msg}')
         except Exception as e:
             exception(e)
         finally:
