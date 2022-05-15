@@ -25,10 +25,13 @@ if __name__ == '__main__':
                 name_bytes = conn.recv(64) # 1st relay
                 name = name_bytes.decode()
                 print(f'{addr} has connected as {name}.')
+
                 conn.sendall(motd_bytes) # 2nd relay
-                msg_bytes = conn.recv(64) # 3rd relay
-                msg = msg_bytes.decode()
-                print(f'{name}: {msg}')
+
+                while True:
+                    msg_bytes = conn.recv(64) # 3rd relay
+                    msg = msg_bytes.decode()
+                    print(f'{name}: {msg}')
         except Exception as e:
             exception(e)
         finally:

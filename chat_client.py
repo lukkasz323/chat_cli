@@ -8,7 +8,6 @@ if __name__ == '__main__':
     name = 'Marek'
     name_bytes = name.encode()
     attempt = 1
-    xd = 0
     
     print('[CLIENT]\n')
     while True:
@@ -24,9 +23,10 @@ if __name__ == '__main__':
                 motd = motd_bytes.decode()
                 print(motd)
 
-                msg = input(f'{name}> ')
-                msg_bytes = msg.encode()
-                client.sendall(msg_bytes) # 3rd relay
+                while True:
+                    msg = input(f'{name}> ')
+                    msg_bytes = msg.encode()
+                    client.sendall(msg_bytes) # 3rd relay
             print('Connection closed.\n')
             break
         except Exception as e:
