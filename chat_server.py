@@ -12,7 +12,6 @@ if __name__ == '__main__':
 
     print('[SERVER]\n')
     print('Starting server...')
-    # Start server and wait for connections
     with socket.create_server((HOST, PORT)) as server:
         print('Server:', server.getsockname())
         server.listen()
@@ -30,8 +29,11 @@ if __name__ == '__main__':
 
                 while True:
                     msg_bytes = conn.recv(64) # 3rd relay
-                    msg = msg_bytes.decode()
-                    print(f'{name}: {msg}')
+                    if msg_bytes == b'/disconnect':
+                        break
+                    if msg_bytes:
+                        msg = msg_bytes.decode()
+                        print(f'{name}: {msg}')
         except Exception as e:
             exception(e)
         finally:

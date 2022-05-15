@@ -23,10 +23,13 @@ if __name__ == '__main__':
                 motd = motd_bytes.decode()
                 print(motd)
 
-                while True:
+                while True: 
                     msg = input(f'{name}> ')
-                    msg_bytes = msg.encode()
-                    client.sendall(msg_bytes) # 3rd relay
+                    if msg == '/disconnect':
+                        client.sendall(b'/disconnect') # 3rd relay A
+                        break
+                    msg_bytes = msg.encode() 
+                    client.sendall(msg_bytes) # 3rd relay B
             print('Connection closed.\n')
             break
         except Exception as e:
