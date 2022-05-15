@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
                 motd_bytes = client.recv(64) # 2nd relay
                 motd = motd_bytes.decode()
-                print(motd)
+                print(f'Server: {motd}')
 
                 while True: 
                     msg = input(f'{name}> ')
