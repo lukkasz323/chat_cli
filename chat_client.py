@@ -1,13 +1,13 @@
 import socket
 import time
+
 from chat import exception
 
 if __name__ == '__main__':
-    PORT = 50001
     HOST = '127.0.0.1'
-    name = 'Marek'
-    name_bytes = name.encode()
+    PORT = 50001
     attempt = 1
+    nickname = 'Marek'
     
     print('[CLIENT]\n')
     while True:
@@ -15,21 +15,7 @@ if __name__ == '__main__':
         try:
             # Connection
             with socket.create_connection((HOST, PORT)) as client:
-                print('Connected to', client.getpeername())
-
-                client.sendall(name_bytes) # 1st relay
-
-                motd_bytes = client.recv(64) # 2nd relay
-                motd = motd_bytes.decode()
-                print(f'Server: {motd}')
-
-                while True: 
-                    msg = input(f'{name}> ')
-                    if msg == '/disconnect':
-                        client.sendall(b'/disconnect') # 3rd relay A
-                        break
-                    msg_bytes = msg.encode() 
-                    client.sendall(msg_bytes) # 3rd relay B
+                pass
             print('Connection closed.\n')
             break
         except Exception as e:
