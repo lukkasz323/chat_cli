@@ -13,10 +13,13 @@ def accept():
                 print(f'{addr} has an invalid token. Connection refused.')
                 continue
 
+            # Receive and save client info
             print(f'{addr} has connected.')
             data = client.recv(1024)
             nickname = data.decode()
+            print(f'{addr} is now known as {nickname}')
             client_list.append(client)
+            nickname_list.append(nickname)
             print(client_list)
             print(nickname_list)
 

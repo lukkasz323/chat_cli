@@ -15,8 +15,9 @@ if __name__ == '__main__':
         try:
             with socket.create_connection((HOST, PORT)) as client:
                 attempt = 1
-                print(f'Connected to {client.getpeername()}')
+                print(f'Connected to {client.getpeername()} as {nickname}')
 
+                # Prove that connection is coming from a valid client
                 client.sendall(TOKEN)
                 
             print('Connection closed.\n')
