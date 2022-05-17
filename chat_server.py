@@ -37,6 +37,10 @@ def handler(client):
             broadcast(msg)
         except Exception as e:
             exception(e)
+            client.close()
+            index = client_list.index(client)
+            client_list.pop(index)
+            nickname_list.pop(index)
 
 def broadcast(msg):
     msg_bytes = msg.encode()

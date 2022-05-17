@@ -19,7 +19,10 @@ if __name__ == '__main__':
 
                 # Prove that connection is coming from a valid client
                 client.sendall(TOKEN) # 1. relay
-                
+                client.sendall(nickname.encode()) # 2. relay
+                data = client.recv(1024) # 3. relay
+                msg = data.decode()
+                print(msg)
             print('Connection closed.\n')
             break
         except Exception as e:
