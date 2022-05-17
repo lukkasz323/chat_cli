@@ -3,17 +3,10 @@ import threading
 import time
 from chat import exception
 
-def broadcast(msg: str):
-    msg_bytes = msg.encode()
-    for client in client_list:
-        client.sendall(msg_bytes)
-
-def receive():
-    msg_bytes = server.recv(1024)
-    msg = msg_bytes.decode()
-
 def accept():
     while True:
+        print(client_list)
+        print(nickname_list)
         client, addr = server.accept()
         with client:
             # Check if connection is coming from a valid client
@@ -31,8 +24,24 @@ def accept():
             nickname_list.append(nickname)
             broadcast(f'{nickname} has joined the server.') # 3. relay
             
-            print(client_list)
-            print(nickname_list)
+            # Handle this client in a new thread from now on,
+            # the main thread loops back to wait for new connections.
+            handler_thread = threading.Thread(target=handler, args=(client,))
+            handler_thread.start()
+
+def handler(client):
+    while True:
+        try:
+            msg_bytes = server.recv(1024)
+            msg = msg_bytes.decode()
+            broadcast(msg)
+        except Exception as e:
+            exception(e)
+
+def broadcast(msg):
+    msg_bytes = msg.encode()
+    for client in client_list:
+        client.sendall(msg_bytes)
 
 if __name__ == '__main__':
     TOKEN = b'1168d420-6e9f-4caf-8956-baf7d8394d54'
@@ -49,5 +58,4 @@ if __name__ == '__main__':
         server.listen()
         print("Server started.")
         accept()
-        receive()
     print('Server closed.\n')
