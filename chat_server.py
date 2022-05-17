@@ -29,12 +29,11 @@ def accept():
             handler_thread = threading.Thread(target=handler, args=(client,))
             handler_thread.start()
 
-def handler(client):
+def handler(client: socket.socket):
     while True:
         try:
-            msg_bytes = server.recv(1024)
-            msg = msg_bytes.decode()
-            broadcast(msg)
+            data = client.recv(1024)
+            broadcast(data)
         except Exception as e:
             exception(e)
             client.close()
@@ -42,10 +41,11 @@ def handler(client):
             client_list.pop(index)
             nickname_list.pop(index)
 
-def broadcast(msg):
-    msg_bytes = msg.encode()
+def broadcast(data):
+    if isinstance(data, str):
+        data.encode()
     for client in client_list:
-        client.sendall(msg_bytes)
+        client.sendall(data)
 
 if __name__ == '__main__':
     TOKEN = b'1168d420-6e9f-4caf-8956-baf7d8394d54'
