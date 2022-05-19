@@ -1,12 +1,10 @@
 import socket
 import threading
 import time
-from chat import exception
+from chat import exc, exc_simple
 
 def accept():
     while True:
-        print(client_list)
-        print(nickname_list)
         client, addr = server.accept()
         with client:
             # Check if connection is coming from a valid client
@@ -31,11 +29,15 @@ def accept():
 
 def handler(client: socket.socket):
     while True:
+        print(client_list) # Debug 
+        print(nickname_list) # Debug 
         try:
+            print(client) # Debug 
+            print(type(client)) # Debug 
             data = client.recv(1024)
             broadcast(data)
-        except Exception as e:
-            exception(e)
+        except:
+            exc()
             client.close()
             index = client_list.index(client)
             client_list.pop(index)
@@ -43,7 +45,7 @@ def handler(client: socket.socket):
 
 def broadcast(data):
     if isinstance(data, str):
-        data.encode()
+        data = data.encode()
     for client in client_list:
         client.sendall(data)
 
