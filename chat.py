@@ -1,9 +1,9 @@
 import traceback
 
-def exc():
+def exc(e):
+    print(f'EXCEPTION: {e}')
+
+def exc_traceback():
     print('-------------------- EXCEPTION:')
     traceback.print_exc()
     print('--------------------')
-
-def exc_simple(e):
-    print(f'EXCEPTION: {e}')

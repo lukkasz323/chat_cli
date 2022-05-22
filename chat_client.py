@@ -1,7 +1,7 @@
 import socket
 import threading
 import time
-from chat import exc, exc_simple
+from chat import exc, exc_traceback
 
 if __name__ == '__main__':
     TOKEN = b'1168d420-6e9f-4caf-8956-baf7d8394d54'
@@ -26,7 +26,7 @@ if __name__ == '__main__':
             print('Connection closed.\n')
             break
         except:
-            exc()
+            exc_traceback()
             if attempt < 10:
                 attempt += 1
             else:
