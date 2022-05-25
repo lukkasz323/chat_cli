@@ -1,3 +1,4 @@
+from cgi import test
 import socket
 import threading
 import time
@@ -32,7 +33,6 @@ def handler(client: socket.socket):
     nickname = nickname_list[index]
 
     while True:
-        time.sleep(2)
         print(1, client) # Debug  
         try:
             print(2, client) # Debug 
@@ -44,8 +44,10 @@ def handler(client: socket.socket):
             exc_traceback()
             client_list.pop(index)
             nickname_list.pop(index)
-            broadcast('bye, bye!')
+            print(client) # Debug
+            broadcast('client.close()!') # Debug
             client.close()
+            print(client) # Debug
             broadcast(f'{nickname} has left the server.')
             print(5, client) # Debug 
             break
@@ -58,7 +60,7 @@ def broadcast(data):
         client.sendall(data)
     print(f'Broadcast: {data}')
 
-def unicast(data, client, nickname: str):
+def unicast(data, client: socket.socket, nickname: str):
     if isinstance(data, str):
         data = data.encode()
     client.sendall(data)
