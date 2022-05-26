@@ -3,6 +3,15 @@ import threading
 import time
 from chat import exc, exc_traceback
 
+def handler():
+    while True:
+        pass
+
+def receive(data):
+    if isinstance(data, bytes):
+        data = data.decode()
+    print(data)
+
 if __name__ == '__main__':
     TOKEN = b'1168d420-6e9f-4caf-8956-baf7d8394d54'
     HOST = '127.0.0.1'
@@ -19,14 +28,18 @@ if __name__ == '__main__':
 
                 # Prove that connection is coming from a valid client
                 client.sendall(TOKEN) # 1. relay
+
                 client.sendall(nickname.encode()) # 2. relay
                 data = client.recv(1024) # 3. relay
                 msg = data.decode()
                 print(msg)
+
+                handler_thread = threading.Thread(target=handler)
+                handler_thread.start()
             print('Connection closed.\n')
             break
-        except:
-            exc_traceback()
+        except ConnectionRefusedError as e:
+            exc(e)
             if attempt < 10:
                 attempt += 1
             else:

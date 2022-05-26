@@ -7,7 +7,8 @@ from chat import exc, exc_traceback
 def accept():
     while True:
         client, addr = server.accept()
-        # Check if connection is coming from a valid client
+
+        # Check if connection is coming from a valid client.
         data = client.recv(1024) # 1. relay
         if data != TOKEN:
             print(f'{addr} has an invalid token. Connection refused.')
@@ -77,7 +78,7 @@ if __name__ == '__main__':
     print('[SERVER]\n')
     print('Starting server...')
     with socket.create_server((HOST, PORT)) as server:
-        print(f'Server: {server.getsockname()}')
+        print(f'Server - {server.getsockname()}')
         server.listen()
         print("Server started.")
         accept()
