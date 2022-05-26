@@ -12,6 +12,7 @@ def accept():
         data = client.recv(1024) # 1. relay
         if data != TOKEN:
             print(f'{addr} has an invalid token. Connection refused.')
+            client.close()
             continue
 
         # Receive and save client info
@@ -23,6 +24,7 @@ def accept():
         nickname_list.append(nickname)
         broadcast(f'{nickname} has joined the server.') # 3. relay
         unicast(motd, client, nickname)
+        broadcast('123')
         
         # Handle this client in a new thread from now on,
         # the main thread loops back to wait for new connections.

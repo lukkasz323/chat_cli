@@ -3,6 +3,11 @@ import threading
 import time
 from chat import exc, exc_traceback
 
+def receive():
+    handler_thread = threading.Thread(target=handler, args=(client, ))
+    handler_thread.start()
+    input() # Debug
+
 def handler(client: socket.socket):
     print(1, client) # Debug
     while True:
@@ -10,11 +15,6 @@ def handler(client: socket.socket):
         client.recv(1024)
         print(3, client) # Debug
     print(4, client) # Debug
-
-def receive(data):
-    if isinstance(data, bytes):
-        data = data.decode()
-    print(data)
 
 if __name__ == '__main__':
     TOKEN = b'1168d420-6e9f-4caf-8956-baf7d8394d54'
@@ -34,12 +34,14 @@ if __name__ == '__main__':
                 client.sendall(TOKEN) # 1. relay
 
                 client.sendall(nickname.encode()) # 2. relay
+
                 data = client.recv(1024) # 3. relay
                 msg = data.decode()
                 print(msg)
 
-                handler_thread = threading.Thread(target=handler, args=(client, ))
-                handler_thread.start()
+                while True:
+                    data = client.recv(1024)
+                    print(data)
             print('Connection closed.\n')
             break
         except ConnectionRefusedError as e:
