@@ -3,9 +3,13 @@ import threading
 import time
 from chat import exc, exc_traceback
 
-def handler():
+def handler(client: socket.socket):
+    print(1, client) # Debug
     while True:
-        pass
+        print(2, client) # Debug
+        client.recv(1024)
+        print(3, client) # Debug
+    print(4, client) # Debug
 
 def receive(data):
     if isinstance(data, bytes):
@@ -34,7 +38,7 @@ if __name__ == '__main__':
                 msg = data.decode()
                 print(msg)
 
-                handler_thread = threading.Thread(target=handler)
+                handler_thread = threading.Thread(target=handler, args=(client, ))
                 handler_thread.start()
             print('Connection closed.\n')
             break

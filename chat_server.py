@@ -26,7 +26,7 @@ def accept():
         
         # Handle this client in a new thread from now on,
         # the main thread loops back to wait for new connections.
-        handler_thread = threading.Thread(target=handler, args=(client,))
+        handler_thread = threading.Thread(target=handler, args=(client, ))
         handler_thread.start()
 
 def handler(client: socket.socket):
