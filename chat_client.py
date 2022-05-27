@@ -3,6 +3,9 @@ import threading
 import time
 from chat import exc, exc_traceback
 
+def send_data():
+    pass
+
 def receive():
     handler_thread = threading.Thread(target=handler, args=(client, ))
     handler_thread.start()
@@ -32,7 +35,7 @@ if __name__ == '__main__':
 
                 # Prove that connection is coming from a valid client
                 client.sendall(TOKEN) # 1. relay
-
+                time.sleep(0.1)
                 client.sendall(nickname.encode()) # 2. relay
 
                 data = client.recv(1024) # 3. relay

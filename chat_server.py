@@ -10,6 +10,7 @@ def accept():
 
         # Check if connection is coming from a valid client.
         data = client.recv(1024) # 1. relay
+        print(data)
         if data != TOKEN:
             print(f'{addr} has an invalid token. Connection refused.')
             client.close()
@@ -25,7 +26,11 @@ def accept():
         broadcast(f'{nickname} has joined the server.') # 3. relay
         unicast(motd, client, nickname)
         broadcast('123')
-        
+
+        # Debug
+        print('Clients:', client_list)
+        print('Nicknames:', nickname_list)
+
         # Handle this client in a new thread from now on,
         # the main thread loops back to wait for new connections.
         handler_thread = threading.Thread(target=handler, args=(client, ))
@@ -35,26 +40,17 @@ def handler(client: socket.socket):
     index = client_list.index(client)
     nickname = nickname_list[index]
 
-    while True:
-        print(1, client) # Debug  
+    while True: 
         try:
-            print(2, client) # Debug 
             data = client.recv(1024)
             broadcast(data)
-            print(3, client) # Debug 
         except:
-            print(4, client) # Debug 
             exc_traceback()
             client_list.pop(index)
             nickname_list.pop(index)
-            print(client) # Debug
-            broadcast('client.close()!') # Debug
             client.close()
-            print(client) # Debug
             broadcast(f'{nickname} has left the server.')
-            print(5, client) # Debug 
             break
-        print(6, client) # Debug 
 
 def broadcast(data):
     if isinstance(data, str):
@@ -79,9 +75,12 @@ if __name__ == '__main__':
 
     print('[SERVER]\n')
     print('Starting server...')
-    with socket.create_server((HOST, PORT)) as server:
-        print(f'Server - {server.getsockname()}')
-        server.listen()
-        print("Server started.")
-        accept()
+    try:
+        with socket.create_server((HOST, PORT)) as server:
+            print(f'Server hosted on {server.getsockname()}')
+            server.listen()
+            print("Server started.")
+            accept()
+    except OSError as e:
+        exc(e)
     print('Server closed.\n')
