@@ -10,7 +10,6 @@ def accept():
 
         # Check if connection is coming from a valid client.
         data = client.recv(1024) # 1. relay
-        print(data)
         if data != TOKEN:
             print(f'{addr} has an invalid token. Connection refused.')
             client.close()
@@ -20,16 +19,14 @@ def accept():
         print(f'{addr} has connected.')
         data = client.recv(1024) # 2. relay
         nickname = data.decode()
-        print(f'{addr} is now known as {nickname}')
+        print(f'{addr} is now known as {nickname}.')
         client_list.append(client)
         nickname_list.append(nickname)
         broadcast(f'{nickname} has joined the server.') # 3. relay
         unicast(motd, client, nickname)
-        broadcast('123')
 
         # Debug
-        print('Clients:', client_list)
-        print('Nicknames:', nickname_list)
+        print('Chatters:', nickname_list)
 
         # Handle this client in a new thread from now on,
         # the main thread loops back to wait for new connections.
@@ -43,7 +40,8 @@ def handler(client: socket.socket):
     while True: 
         try:
             data = client.recv(1024)
-            broadcast(data)
+            if data:
+                broadcast(f'{data}')
         except:
             exc_traceback()
             client_list.pop(index)
