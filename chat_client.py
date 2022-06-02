@@ -42,7 +42,7 @@ if __name__ == '__main__':
                 receive_thread.start()
 
                 while True:
-                    inp = input('> ')
+                    inp = input()
                     data = inp.encode()
                     client.sendall(data)
             print('Connection closed.\n')
