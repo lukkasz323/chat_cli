@@ -1,4 +1,3 @@
-from cgi import test
 import socket
 import threading
 import time
@@ -23,6 +22,7 @@ def accept():
         client_list.append(client)
         nickname_list.append(nickname)
         broadcast(f'{nickname} has joined the server.') # 3. relay
+        time.sleep(0.1)
         unicast(motd, client, nickname)
 
         # Debug
@@ -41,7 +41,7 @@ def handler(client: socket.socket):
         try:
             data = client.recv(1024)
             if data:
-                broadcast(f'{data}')
+                broadcast(data)
         except:
             exc_traceback()
             client_list.pop(index)
@@ -56,7 +56,7 @@ def broadcast(data):
     for client in client_list:
         client.sendall(data)
     print(f'Broadcast: {data}')
-
+    
 def unicast(data, client: socket.socket, nickname: str):
     if isinstance(data, str):
         data = data.encode()
