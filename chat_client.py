@@ -7,8 +7,10 @@ def receive(client):
     while True:
         source = client.recv(1024)
         msg = client.recv(1024)
+
         source = source.decode()
         msg = msg.decode()
+        
         print(f'{source}: {msg}')
 
 if __name__ == '__main__':
@@ -50,3 +52,5 @@ if __name__ == '__main__':
             else:
                 print("Failed to connect to the server.\n")
                 break
+            
+# TODO: Proper print on server close instead of uncaught exception.

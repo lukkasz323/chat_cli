@@ -15,14 +15,13 @@ def accept():
             continue
 
         # Receive and save client info
-        print(f'{addr} has connected.')
-        data = client.recv(1024) # 2. relay
-        nickname = data.decode()
-        print(f'{addr} is now known as {nickname}.')
+        nickname = client.recv(1024) # 2. relay
+        nickname = nickname.decode()
+        print(f'{addr} has connected as {nickname}.')
         client_list.append(client)
         nickname_list.append(nickname)
         broadcast(f'{nickname} has joined the server.')
-        time.sleep(0.1)
+        time.sleep(0.01)
         unicast(motd, client, nickname)
 
         print('Chatters:', nickname_list) # Debug
@@ -48,22 +47,29 @@ def handler(client: socket.socket):
             nickname_list.pop(index)
             client.close()
             broadcast(f'{nickname} has left the server.')
+            print('Chatters:', nickname_list) # Debug
             break
 
+# Send a message and source info to every client.
 def broadcast(msg, source='Server'):
     source = source.encode()
     if isinstance(msg, str):
         msg = msg.encode()
     for client in client_list:
         client.sendall(source)
+        time.sleep(0.01)
         client.sendall(msg)
     print(f'Broadcast: {source} / {msg}')
     
-def unicast(data, client: socket.socket, nickname: str):
-    if isinstance(data, str):
-        data = data.encode()
-    client.sendall(data)
-    print(f'Unicast to {nickname}: {data}')
+# Send a message and source info to a selected client.
+def unicast(msg, client: socket.socket, nickname: str, source='Server'):
+    source = source.encode()
+    if isinstance(msg, str):
+        msg = msg.encode()
+    client.sendall(source)
+    time.sleep(0.01)
+    client.sendall(msg)
+    print(f'Unicast to {nickname}: {msg}')
 
 if __name__ == '__main__':
     TOKEN = b'1168d420-6e9f-4caf-8956-baf7d8394d54'
@@ -84,5 +90,3 @@ if __name__ == '__main__':
     except OSError as e:
         exc(e)
     print('Server closed.\n')
-
-# TODO: Fix race condition
