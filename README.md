@@ -1,7 +1,7 @@
 # About
 A CLI (Command-line Interface) Chat Client.
 
-Supports only LAN and Port 50001 connections at the moment.
+Supports only port 50001 connections at the moment.
 
 # How to run
 ## Client
