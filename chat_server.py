@@ -21,18 +21,18 @@ def accept():
         print(f'{addr} is now known as {nickname}.')
         client_list.append(client)
         nickname_list.append(nickname)
-        broadcast(f'{nickname} has joined the server.') # 3. relay
+        broadcast(f'{nickname} has joined the server.')
         time.sleep(0.1)
         unicast(motd, client, nickname)
 
-        # Debug
-        print('Chatters:', nickname_list)
+        print('Chatters:', nickname_list) # Debug
 
         # Handle this client in a new thread from now on,
         # the main thread loops back to wait for new connections.
         handler_thread = threading.Thread(target=handler, args=(client, ))
         handler_thread.start()
 
+# Handler ran in a seperate thread for each client.
 def handler(client: socket.socket):
     index = client_list.index(client)
     nickname = nickname_list[index]
@@ -41,7 +41,7 @@ def handler(client: socket.socket):
         try:
             data = client.recv(1024)
             if data:
-                broadcast(data)
+                broadcast(data, nickname)
         except:
             exc_traceback()
             client_list.pop(index)
@@ -50,12 +50,14 @@ def handler(client: socket.socket):
             broadcast(f'{nickname} has left the server.')
             break
 
-def broadcast(data):
-    if isinstance(data, str):
-        data = data.encode()
+def broadcast(msg, source='Server'):
+    source = source.encode()
+    if isinstance(msg, str):
+        msg = msg.encode()
     for client in client_list:
-        client.sendall(data)
-    print(f'Broadcast: {data}')
+        client.sendall(source)
+        client.sendall(msg)
+    print(f'Broadcast: {source} / {msg}')
     
 def unicast(data, client: socket.socket, nickname: str):
     if isinstance(data, str):
@@ -82,3 +84,5 @@ if __name__ == '__main__':
     except OSError as e:
         exc(e)
     print('Server closed.\n')
+
+# TODO: Fix race condition

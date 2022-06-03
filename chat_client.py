@@ -5,10 +5,11 @@ from chat import exc, exc_traceback
 
 def receive(client):
     while True:
-        data = client.recv(1024)
-        if isinstance(data, bytes):
-            data = data.decode()
-        print(f'Server: {data}')
+        source = client.recv(1024)
+        msg = client.recv(1024)
+        source = source.decode()
+        msg = msg.decode()
+        print(f'{source}: {msg}')
 
 if __name__ == '__main__':
     TOKEN = b'1168d420-6e9f-4caf-8956-baf7d8394d54'
@@ -18,7 +19,7 @@ if __name__ == '__main__':
 
     print('[CLIENT]\n')
 
-    # Set nickname
+    # Set nickname for this client.
     nickname = input('Nickname: ')
 
     while True:
@@ -30,13 +31,8 @@ if __name__ == '__main__':
 
                 # Prove that connection is coming from a valid client
                 client.sendall(TOKEN) # 1. relay
-
                 time.sleep(0.1)
                 client.sendall(nickname.encode()) # 2. relay
-
-                # data = client.recv(1024) # 3. relay
-                # msg = data.decode()
-                # print(msg)
 
                 receive_thread = threading.Thread(target=receive, args=(client, ))
                 receive_thread.start()
