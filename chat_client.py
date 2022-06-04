@@ -31,14 +31,16 @@ if __name__ == '__main__':
                 attempt = 1
                 print(f'\nConnected to {client.getpeername()} as {nickname}.')
 
-                # Prove that connection is coming from a valid client
+                # Prove that connection is coming from a valid client.
                 client.sendall(TOKEN) # 1. relay
                 time.sleep(0.1)
                 client.sendall(nickname.encode()) # 2. relay
 
+                # Handle server data receiving in a separate thread.
                 receive_thread = threading.Thread(target=receive, args=(client, ))
                 receive_thread.start()
 
+                # Handle sending messages to the server.
                 while True:
                     inp = input()
                     data = inp.encode()

@@ -1,7 +1,11 @@
 import socket
 import threading
 import time
+import cmd
 from chat import exc, exc_traceback
+
+def cmd_chatters():
+    broadcast(f'Chatters: {nickname_list}')
 
 def accept():
     while True:
@@ -39,8 +43,21 @@ def handler(client: socket.socket):
     while True: 
         try:
             data = client.recv(1024)
-            if data:
-                broadcast(data, nickname)
+            decoded = data.decode()
+
+            # Handle client commands.
+            if decoded[0] == '/': 
+                if len(decoded) == 1:
+                    broadcast(f'Available commands: {[commands.keys()]}')
+                else:
+                    if decoded in commands:
+                        commands[decoded]()
+                    else:
+                        broadcast('Unknown command, type "/" for a list of commands.')
+            # Broadcast client messages.
+            else:
+                if data:
+                    broadcast(data, nickname)
         except:
             exc_traceback()
             client_list.pop(index)
@@ -62,7 +79,7 @@ def broadcast(msg, source='Server'):
     print(f'Broadcast: {source} / {msg}')
     
 # Send a message and source info to a selected client.
-def unicast(msg, client: socket.socket, nickname: str, source='Server'):
+def unicast(msg, client: socket.socket, nickname: str, source='(PM) Server'):
     source = source.encode()
     if isinstance(msg, str):
         msg = msg.encode()
@@ -78,6 +95,9 @@ if __name__ == '__main__':
     motd = 'Welcome to the server!'
     client_list = []
     nickname_list = []
+    commands = {
+        '/chatters': cmd_chatters
+    }
 
     print('[SERVER]\n')
     print('Starting server...')
