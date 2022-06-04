@@ -1,8 +1,10 @@
 import socket
 import threading
 import time
-import cmd
 from chat import exc, exc_traceback
+
+def cmd():
+    broadcast(f'Available commands: {[commands.keys()]}')
 
 def cmd_chatters():
     broadcast(f'Chatters: {nickname_list}')
@@ -47,13 +49,10 @@ def handler(client: socket.socket):
 
             # Handle client commands.
             if decoded[0] == '/': 
-                if len(decoded) == 1:
-                    broadcast(f'Available commands: {[commands.keys()]}')
+                if decoded in commands:
+                    commands[decoded]()
                 else:
-                    if decoded in commands:
-                        commands[decoded]()
-                    else:
-                        broadcast('Unknown command, type "/" for a list of commands.')
+                    broadcast('Unknown command, type "/" for a list of commands.')
             # Broadcast client messages.
             else:
                 if data:
@@ -96,6 +95,7 @@ if __name__ == '__main__':
     client_list = []
     nickname_list = []
     commands = {
+        '/': cmd,
         '/chatters': cmd_chatters
     }
 
@@ -110,3 +110,5 @@ if __name__ == '__main__':
     except OSError as e:
         exc(e)
     print('Server closed.\n')
+
+# TODO: Expand "cmd_chatters", nicer print, descriptions.
