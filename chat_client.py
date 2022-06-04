@@ -22,7 +22,9 @@ if __name__ == '__main__':
     print('[CLIENT]\n')
 
     # Set nickname for this client.
-    nickname = input('Nickname: ')
+    while True:
+        nickname = input('Nickname: ')
+        if nickname: break
 
     while True:
         print(f"Connecting to ('{HOST}', {PORT})... [{attempt}]")
