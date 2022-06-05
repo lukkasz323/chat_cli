@@ -4,7 +4,7 @@ import time
 from chat import exc, exc_traceback
 
 def cmd():
-    broadcast(f'Available commands: {commands.keys()}')
+    broadcast(commands_list)
 
 def cmd_chatters():
     broadcast(f'Chatters: {nickname_list}')
@@ -50,7 +50,7 @@ def handler(client: socket.socket):
             # Handle client commands.
             if decoded[0] == '/': 
                 if decoded in commands:
-                    commands[decoded]()
+                    commands[decoded][0]()
                 else:
                     broadcast('Unknown command, type "/" for a list of commands.')
             # Broadcast client messages.
@@ -95,19 +95,26 @@ if __name__ == '__main__':
     client_list = []
     nickname_list = []
     commands = {
-        '/': cmd,
-        '/chatters': cmd_chatters
-    }
+        '/'        : (cmd, 'Print available commands.'),
+        '/chatters': (cmd_chatters, 'Print online chatters.')
+        }
+    commands_list = f'Available commands:\n'
 
     print('[SERVER]\n')
     print('Starting server...')
+
+    # Setup
+    for k in commands:
+        commands_list += f'{k} - {commands[k][1]}\n'
+
+    # Server
     try:
         with socket.create_server((HOST, PORT)) as server:
             print(f'Server hosted on {server.getsockname()}')
             server.listen()
             print("Server started.")
             accept()
-    except OSError as e:
+    except OSError as e: # Starting server on occupied address.
         exc(e)
     print('Server closed.\n')
 

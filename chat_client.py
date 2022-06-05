@@ -60,5 +60,4 @@ if __name__ == '__main__':
             print('Connection closed.\n')
             break
             
-# TODO: Proper print on server close instead of uncaught exception.
 # TODO: Read settings from a file.
