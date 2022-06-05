@@ -4,7 +4,7 @@ import time
 from chat import exc, exc_traceback
 
 def cmd():
-    broadcast(f'Available commands: {[commands.keys()]}')
+    broadcast(f'Available commands: {commands.keys()}')
 
 def cmd_chatters():
     broadcast(f'Chatters: {nickname_list}')
