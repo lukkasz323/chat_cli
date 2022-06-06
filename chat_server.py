@@ -9,6 +9,40 @@ def cmd():
 def cmd_chatters():
     broadcast(f'Chatters: {nickname_list}')
 
+def cmd_kick():
+    pass
+
+def kick_client(client):
+    index = client_list.index(client)
+    nickname = nickname_list[index]
+
+    client.close()
+    client_list.pop(index)
+    nickname_list.pop(index)
+    broadcast(f'{nickname} has left the server.')
+    print('Chatters:', nickname_list) # Debug
+
+# Send a message and source info to every client.
+def broadcast(msg, source='Server'):
+    source = source.encode()
+    if isinstance(msg, str):
+        msg = msg.encode()
+    for client in client_list:
+        client.sendall(source)
+        time.sleep(0.01)
+        client.sendall(msg)
+    print(f'Broadcast: {source} / {msg}')
+    
+# Send a message and source info to a selected client.
+def unicast(msg, client: socket.socket, nickname: str, source='(PM) Server'):
+    source = source.encode()
+    if isinstance(msg, str):
+        msg = msg.encode()
+    client.sendall(source)
+    time.sleep(0.01)
+    client.sendall(msg)
+    print(f'Unicast to {nickname}: {msg}')
+
 def accept():
     while True:
         client, addr = server.accept()
@@ -32,7 +66,7 @@ def accept():
 
         print('Chatters:', nickname_list) # Debug
 
-        # Handle this client in a new thread from now on,
+        # Handle this client in a new thread from now on while
         # the main thread loops back to wait for new connections.
         handler_thread = threading.Thread(target=handler, args=(client, ))
         handler_thread.start()
@@ -59,33 +93,8 @@ def handler(client: socket.socket):
                     broadcast(data, nickname)
         except:
             exc_traceback()
-            client_list.pop(index)
-            nickname_list.pop(index)
-            client.close()
-            broadcast(f'{nickname} has left the server.')
-            print('Chatters:', nickname_list) # Debug
+            kick_client(client)
             break
-
-# Send a message and source info to every client.
-def broadcast(msg, source='Server'):
-    source = source.encode()
-    if isinstance(msg, str):
-        msg = msg.encode()
-    for client in client_list:
-        client.sendall(source)
-        time.sleep(0.01)
-        client.sendall(msg)
-    print(f'Broadcast: {source} / {msg}')
-    
-# Send a message and source info to a selected client.
-def unicast(msg, client: socket.socket, nickname: str, source='(PM) Server'):
-    source = source.encode()
-    if isinstance(msg, str):
-        msg = msg.encode()
-    client.sendall(source)
-    time.sleep(0.01)
-    client.sendall(msg)
-    print(f'Unicast to {nickname}: {msg}')
 
 if __name__ == '__main__':
     TOKEN = b'1168d420-6e9f-4caf-8956-baf7d8394d54'
@@ -119,3 +128,4 @@ if __name__ == '__main__':
     print('Server closed.\n')
 
 # TODO: Expand "cmd_chatters", nicer print, descriptions.
+# TODO: Add "who am I" command.
