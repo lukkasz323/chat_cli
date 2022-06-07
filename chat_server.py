@@ -4,7 +4,7 @@ import time
 from chat import exc, exc_traceback
 
 def cmd():
-    broadcast(commands_list)
+    broadcast(commands_descriptions)
 
 def cmd_chatters():
     broadcast(f'Chatters: {nickname_list}')
@@ -109,16 +109,17 @@ if __name__ == '__main__':
         '/chatters': (cmd_chatters, 'Print online chatters.'),
         '/kick'    : (cmd_kick, 'Disconnects a specified chatter.')
         }
-    commands_list = f'Available commands:\n'
+    
 
     print('[SERVER]\n')
-    print('Starting server...')
 
     # Setup
+    commands_descriptions = f'Available commands:\n'
     for k in commands:
-        commands_list += f'{k} - {commands[k][1]}\n'
+        commands_descriptions += f'{k} - {commands[k][1]}\n'
 
     # Server
+    print('Starting server...')
     try:
         with socket.create_server((HOST, PORT)) as server:
             print(f'Server hosted on {server.getsockname()}')
