@@ -29,7 +29,7 @@ def broadcast(msg, source='Server'):
         msg = msg.encode()
     for client in client_list:
         client.sendall(source)
-        time.sleep(0.01)
+        time.sleep(0.1)
         client.sendall(msg)
     print(f'Broadcast: {source} / {msg}')
     
@@ -39,7 +39,7 @@ def unicast(msg, client: socket.socket, nickname: str, source='(PM) Server'):
     if isinstance(msg, str):
         msg = msg.encode()
     client.sendall(source)
-    time.sleep(0.01)
+    time.sleep(0.1)
     client.sendall(msg)
     print(f'Unicast to {nickname}: {msg}')
 
@@ -61,7 +61,8 @@ def accept():
         client_list.append(client)
         nickname_list.append(nickname)
         broadcast(f'{nickname} has joined the server.')
-        time.sleep(0.01)
+
+        time.sleep(0.1)
         unicast(motd, client, nickname)
 
         print('Chatters:', nickname_list) # Debug
@@ -92,10 +93,10 @@ def handler(client: socket.socket):
                 if data:
                     broadcast(data, nickname)
         except:
-            exc_traceback()
+            exc(e)
             kick_client(client)
             break
-
+list().copy
 if __name__ == '__main__':
     TOKEN = b'1168d420-6e9f-4caf-8956-baf7d8394d54'
     HOST = ''
@@ -105,7 +106,8 @@ if __name__ == '__main__':
     nickname_list = []
     commands = {
         '/'        : (cmd, 'Print available commands.'),
-        '/chatters': (cmd_chatters, 'Print online chatters.')
+        '/chatters': (cmd_chatters, 'Print online chatters.'),
+        '/kick'    : (cmd_kick, 'Disconnects a specified chatter.')
         }
     commands_list = f'Available commands:\n'
 

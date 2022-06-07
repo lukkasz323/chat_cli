@@ -18,26 +18,34 @@ def receive(client):
 
 if __name__ == '__main__':
     TOKEN = b'1168d420-6e9f-4caf-8956-baf7d8394d54'
-    HOST = '127.0.0.1'
     PORT = 50001
-    attempt = 1
+
+    # Default settings
+    host = '127.0.0.1'
+    nickname = 'User'
 
     print('[CLIENT]\n')
 
-    # Set nickname for this client.
-    while True:
-        nickname = input('Nickname: ')
-        if nickname: break
+    # Set host to connect to (Leave as default if empty).
+    inp = input('IP: ')
+    if inp:
+        host = inp
 
+    # Set nickname for this client (Leave as default if empty).
+    inp = input('Nickname: ')
+    if inp:
+        nickname = inp
+
+    attempt = 1
     while True:
-        print(f"Connecting to ('{HOST}', {PORT})... [{attempt}]")
+        print(f"Connecting to ('{host}', {PORT})... [{attempt}]")
         try:
-            with socket.create_connection((HOST, PORT)) as client:
+            with socket.create_connection((host, PORT)) as client:
                 print(f'\nConnected to {client.getpeername()} as {nickname}.')
 
                 # Prove that connection is coming from a valid client.
                 client.sendall(TOKEN) # 1. relay
-                time.sleep(0.01)
+                time.sleep(0.1)
                 client.sendall(nickname.encode()) # 2. relay
 
                 # Handle server data receiving in a separate thread.
