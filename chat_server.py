@@ -1,16 +1,22 @@
+from http import client
 import socket
 import threading
 import time
 from chat import exc, exc_traceback
 
-def cmd():
+def cmd_slash():
     broadcast(commands_descriptions)
 
 def cmd_chatters():
     broadcast(f'Chatters: {nickname_list}')
 
-def cmd_kick():
-    pass
+def cmd_kick(nickname):
+    if nickname in nickname_list:
+        index = nickname_list.index(nickname)
+        client = client_list[index]
+        kick_client(client)
+    else:
+        broadcast('Invalid nickname.')
 
 def kick_client(client):
     index = client_list.index(client)
@@ -85,7 +91,12 @@ def handler(client: socket.socket):
             # Handle client commands.
             if decoded[0] == '/': 
                 if decoded in commands:
-                    commands[decoded][0]()
+                    func = commands[decoded][0]
+                    if func.__code__.co_argcount == 1:
+                        param = 'User' # Debug (unfinished)
+                        func(param)
+                    else:
+                        func()
                 else:
                     broadcast('Unknown command, type "/" for a list of commands.')
             # Broadcast client messages.
@@ -93,10 +104,10 @@ def handler(client: socket.socket):
                 if data:
                     broadcast(data, nickname)
         except:
-            exc(e)
+            exc_traceback()
             kick_client(client)
             break
-list().copy
+
 if __name__ == '__main__':
     TOKEN = b'1168d420-6e9f-4caf-8956-baf7d8394d54'
     HOST = ''
@@ -105,11 +116,10 @@ if __name__ == '__main__':
     client_list = []
     nickname_list = []
     commands = {
-        '/'        : (cmd, 'Print available commands.'),
+        '/'        : (cmd_slash, 'Print available commands.'),
         '/chatters': (cmd_chatters, 'Print online chatters.'),
         '/kick'    : (cmd_kick, 'Disconnects a specified chatter.')
         }
-    
 
     print('[SERVER]\n')
 
@@ -130,5 +140,4 @@ if __name__ == '__main__':
         exc(e)
     print('Server closed.\n')
 
-# TODO: Expand "cmd_chatters", nicer print, descriptions.
 # TODO: Add "who am I" command.

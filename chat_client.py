@@ -36,6 +36,10 @@ if __name__ == '__main__':
     if inp:
         nickname = inp
 
+    # # Debug
+    # with open('chat_settings.cfg') as file:
+    #     print(file.name)
+
     attempt = 1
     while True:
         print(f"Connecting to ('{host}', {PORT})... [{attempt}]")
@@ -67,5 +71,5 @@ if __name__ == '__main__':
         except ConnectionError:
             print('Connection closed.\n')
             break
-            
+
 # TODO: Read settings from a file.
