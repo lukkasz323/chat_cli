@@ -10,7 +10,7 @@ def cmd_slash():
 def cmd_chatters():
     broadcast(f'Chatters: {nickname_list}')
 
-def cmd_kick(nickname):
+def cmd_kick(nickname: str):
     if nickname in nickname_list:
         index = nickname_list.index(nickname)
         client = client_list[index]
@@ -18,7 +18,7 @@ def cmd_kick(nickname):
     else:
         broadcast('Invalid nickname.')
 
-def kick_client(client):
+def kick_client(client: socket.socket):
     index = client_list.index(client)
     nickname = nickname_list[index]
 
@@ -27,6 +27,9 @@ def kick_client(client):
     nickname_list.pop(index)
     broadcast(f'{nickname} has left the server.')
     print('Chatters:', nickname_list) # Debug
+
+def change_nickname():
+    pass
 
 # Send a message and source info to every client.
 def broadcast(msg, source='Server'):
@@ -48,35 +51,6 @@ def unicast(msg, client: socket.socket, nickname: str, source='(PM) Server'):
     time.sleep(0.1)
     client.sendall(msg)
     print(f'Unicast to {nickname}: {msg}')
-
-def accept():
-    while True:
-        client, addr = server.accept()
-
-        # Check if connection is coming from a valid client.
-        data = client.recv(1024) # 1. relay
-        if data != TOKEN:
-            print(f'{addr} has an invalid token. Connection refused.')
-            client.close()
-            continue
-
-        # Receive and save client info
-        nickname = client.recv(1024) # 2. relay
-        nickname = nickname.decode()
-        print(f'{addr} has connected as {nickname}.')
-        client_list.append(client)
-        nickname_list.append(nickname)
-        broadcast(f'{nickname} has joined the server.')
-
-        time.sleep(0.1)
-        unicast(motd, client, nickname)
-
-        print('Chatters:', nickname_list) # Debug
-
-        # Handle this client in a new thread from now on while
-        # the main thread loops back to wait for new connections.
-        handler_thread = threading.Thread(target=handler, args=(client, ))
-        handler_thread.start()
 
 # Handler ran in a seperate thread for each client.
 def handler(client: socket.socket):
@@ -113,6 +87,7 @@ if __name__ == '__main__':
     HOST = ''
     PORT = 50001
     motd = 'Welcome to the server!'
+    nickname_repetitions = 0
     client_list = []
     nickname_list = []
     commands = {
@@ -135,7 +110,39 @@ if __name__ == '__main__':
             print(f'Server hosted on {server.getsockname()}')
             server.listen()
             print("Server started.")
-            accept()
+            while True:
+                # Wait for clients to accept.
+                client, addr = server.accept()
+
+                # Check if connection is coming from a valid client.
+                data = client.recv(1024) # 1. relay
+                if data != TOKEN:
+                    print(f'{addr} has an invalid token. Connection refused.')
+                    client.close()
+                    continue
+
+                # Receive and handle client info.
+                data = client.recv(1024) # 2. relay
+                nickname = data.decode()
+                if nickname in nickname_list:
+                    nickname_repetitions += 1
+                    nickname += str(nickname_repetitions)
+                print(f'{addr} has connected as {nickname}.')
+                client_list.append(client)
+                nickname_list.append(nickname)
+                broadcast(f'{nickname} has joined the server.')
+
+                # Send client a welcome message.
+                time.sleep(0.1)
+                unicast(motd, client, nickname)
+
+                # Print an updated list of clients.
+                print('Chatters:', nickname_list)
+
+                # Handle this client in a new thread from now on while
+                # the main thread loops back to wait for new connections.
+                handler_thread = threading.Thread(target=handler, args=(client, ))
+                handler_thread.start()
     except OSError as e: # Starting server on occupied address.
         exc(e)
     print('Server closed.\n')

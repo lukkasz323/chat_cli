@@ -42,10 +42,10 @@ if __name__ == '__main__':
 
     attempt = 1
     while True:
-        print(f"Connecting to ('{host}', {PORT})... [{attempt}]")
+        print(f'Connecting to "{host}:{PORT}"... [{attempt}]')
         try:
             with socket.create_connection((host, PORT)) as client:
-                print(f'\nConnected to {client.getpeername()} as {nickname}.')
+                print(f'\nConnected to {client.getpeername()}.')
 
                 # Prove that connection is coming from a valid client.
                 client.sendall(TOKEN) # 1. relay
