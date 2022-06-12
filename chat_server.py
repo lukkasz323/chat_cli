@@ -17,7 +17,7 @@ def cmd_kick(nickname: str):
 
         kick_client(client)
     else:
-        broadcast('Invalid nickname.', )
+        broadcast('Invalid nickname.')
 
 def kick_client(client: socket.socket):
     index = client_list.index(client)
