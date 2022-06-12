@@ -14,9 +14,10 @@ def cmd_kick(nickname: str):
     if nickname in nickname_list:
         index = nickname_list.index(nickname)
         client = client_list[index]
+
         kick_client(client)
     else:
-        broadcast('Invalid nickname.')
+        broadcast('Invalid nickname.', )
 
 def kick_client(client: socket.socket):
     index = client_list.index(client)
@@ -43,7 +44,10 @@ def broadcast(msg, source='Server'):
     print(f'Broadcast: {source} / {msg}')
     
 # Send a message and source info to a selected client.
-def unicast(msg, client: socket.socket, nickname: str, source='(PM) Server'):
+def unicast(msg, client: socket.socket, source='(PM) Server'):
+    index = client_list.index(client)
+    nickname = nickname_list[index]
+
     source = source.encode()
     if isinstance(msg, str):
         msg = msg.encode()
@@ -63,12 +67,15 @@ def handler(client: socket.socket):
             decoded = data.decode()
 
             # Handle client commands.
-            if decoded[0] == '/': 
-                if decoded in commands:
-                    func = commands[decoded][0]
+            if decoded[0] == '/':
+                split = decoded.split()
+                if split[0] in commands:
+                    func = commands[split[0]][0]
                     if func.__code__.co_argcount == 1:
-                        param = 'User' # Debug (unfinished)
-                        func(param)
+                        if len(split) > 1:
+                            func(split[1])
+                        else:
+                            broadcast('This command requies an argument.')
                     else:
                         func()
                 else:
@@ -134,7 +141,7 @@ if __name__ == '__main__':
 
                 # Send client a welcome message.
                 time.sleep(0.1)
-                unicast(motd, client, nickname)
+                unicast(motd, client)
 
                 # Print an updated list of clients.
                 print('Chatters:', nickname_list)
