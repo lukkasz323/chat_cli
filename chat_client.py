@@ -1,6 +1,7 @@
 import socket
 import threading
 import time
+from chat_client_cfg import *
 from chat import exc, exc_traceback
 
 def receive(client):
@@ -18,33 +19,18 @@ def receive(client):
 
 if __name__ == '__main__':
     TOKEN = b'1168d420-6e9f-4caf-8956-baf7d8394d54'
-    PORT = 50001
-
-    # Default settings
-    host = '127.0.0.1'
-    nickname = 'User'
 
     print('[CLIENT]\n')
 
-    # Set host to connect to (Leave as default if empty).
-    inp = input('IP: ')
-    if inp:
-        host = inp
+    # Print settings. (Import)
+    print(f'\n[Settings]\nHost: {host}\nPort: {port}\nNickname: {nickname}\n')
 
-    # Set nickname for this client (Leave as default if empty).
-    inp = input('Nickname: ')
-    if inp:
-        nickname = inp
-
-    # # Debug
-    # with open('chat_settings.cfg') as file:
-    #     print(file.name)
-
+    # [Connection]
     attempt = 1
     while True:
-        print(f'Connecting to "{host}:{PORT}"... [{attempt}]')
+        print(f'Connecting to "{host}:{port}"... [{attempt}]')
         try:
-            with socket.create_connection((host, PORT)) as client:
+            with socket.create_connection((host, port)) as client:
                 print(f'\nConnected to {client.getpeername()}.')
 
                 # Prove that connection is coming from a valid client.
@@ -56,7 +42,7 @@ if __name__ == '__main__':
                 receive_thread = threading.Thread(target=receive, args=(client, ))
                 receive_thread.start()
 
-                # Handle sending messages to the server.
+                # Handle sending messages to the server
                 while True:
                     inp = input()
                     data = inp.encode()
@@ -71,5 +57,3 @@ if __name__ == '__main__':
         except ConnectionError:
             print('Connection closed.\n')
             break
-
-# TODO: Read settings from a file.

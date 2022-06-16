@@ -103,14 +103,13 @@ if __name__ == '__main__':
         '/kick'    : (cmd_kick, 'Disconnects a specified chatter.')
         }
 
-    print('[SERVER]\n')
-
     # Setup
     commands_descriptions = f'Available commands:\n'
     for k in commands:
         commands_descriptions += f'{k} - {commands[k][1]}\n'
 
-    # Server
+    # [Server]
+    print('[SERVER]\n')
     print('Starting server...')
     try:
         with socket.create_server((HOST, PORT)) as server:
