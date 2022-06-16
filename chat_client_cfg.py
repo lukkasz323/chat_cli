@@ -1,4 +1,4 @@
-# [Settings]
-host = '127.0.0.1'
-port = '50001'
+# [Settings - Client]
+HOST = '127.0.0.1'
+PORT = 50001
 nickname = 'User'

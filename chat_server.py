@@ -2,6 +2,7 @@ from http import client
 import socket
 import threading
 import time
+from chat_server_cfg import *
 from chat import exc, exc_traceback
 
 def cmd_slash():
@@ -90,9 +91,8 @@ def handler(client: socket.socket):
             break
 
 if __name__ == '__main__':
-    TOKEN = b'1168d420-6e9f-4caf-8956-baf7d8394d54'
-    HOST = ''
-    PORT = 50001
+    TOKEN = b'1168d420-6e9f-4caf-8956-baf7d8394d54' # Used for connection verification.
+    
     motd = 'Welcome to the server!'
     nickname_repetitions = 0
     client_list = []
@@ -145,8 +145,7 @@ if __name__ == '__main__':
                 # Print an updated list of clients.
                 print('Chatters:', nickname_list)
 
-                # Handle this client in a new thread from now on while
-                # the main thread loops back to wait for new connections.
+                # Handle this client in a separate thread.
                 handler_thread = threading.Thread(target=handler, args=(client, ))
                 handler_thread.start()
     except OSError as e: # Starting server on occupied address.

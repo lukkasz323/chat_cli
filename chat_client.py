@@ -18,19 +18,19 @@ def receive(client):
             break
 
 if __name__ == '__main__':
-    TOKEN = b'1168d420-6e9f-4caf-8956-baf7d8394d54'
+    TOKEN = b'1168d420-6e9f-4caf-8956-baf7d8394d54' # Used for connection verification.
 
     print('[CLIENT]\n')
 
     # Print settings. (Import)
-    print(f'\n[Settings]\nHost: {host}\nPort: {port}\nNickname: {nickname}\n')
+    print(f'[Settings]\nHost: {HOST}\nPort: {PORT}\nNickname: {nickname}\n')
 
     # [Connection]
     attempt = 1
     while True:
-        print(f'Connecting to "{host}:{port}"... [{attempt}]')
+        print(f'Connecting to "{HOST}:{PORT}"... [{attempt}]')
         try:
-            with socket.create_connection((host, port)) as client:
+            with socket.create_connection((HOST, PORT)) as client:
                 print(f'\nConnected to {client.getpeername()}.')
 
                 # Prove that connection is coming from a valid client.
@@ -42,7 +42,7 @@ if __name__ == '__main__':
                 receive_thread = threading.Thread(target=receive, args=(client, ))
                 receive_thread.start()
 
-                # Handle sending messages to the server
+                # Handle sending messages to the server.
                 while True:
                     inp = input()
                     data = inp.encode()
