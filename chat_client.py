@@ -1,6 +1,6 @@
 import socket
-import threading
 import time
+from threading import Thread
 from chat_client_cfg import *
 from chat import exc, exc_traceback
 
@@ -22,7 +22,7 @@ if __name__ == '__main__':
 
     print('[CLIENT]\n')
 
-    # Print settings. (Import)
+    # Print settings.
     print(f'[Settings]\nHost: {HOST}\nPort: {PORT}\nNickname: {nickname}\n')
 
     # [Connection]
@@ -39,7 +39,7 @@ if __name__ == '__main__':
                 client.sendall(nickname.encode()) # 2. relay
 
                 # Handle server data receiving in a separate thread.
-                receive_thread = threading.Thread(target=receive, args=(client, ))
+                receive_thread = Thread(target=receive, args=(client, ))
                 receive_thread.start()
 
                 # Handle sending messages to the server.

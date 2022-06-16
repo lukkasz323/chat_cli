@@ -1,7 +1,6 @@
-from http import client
 import socket
-import threading
 import time
+from threading import Thread
 from chat_server_cfg import *
 from chat import exc, exc_traceback
 
@@ -146,7 +145,7 @@ if __name__ == '__main__':
                 print('Chatters:', nickname_list)
 
                 # Handle this client in a separate thread.
-                handler_thread = threading.Thread(target=handler, args=(client, ))
+                handler_thread = Thread(target=handler, args=(client, ))
                 handler_thread.start()
     except OSError as e: # Starting server on occupied address.
         exc(e)
