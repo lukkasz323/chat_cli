@@ -151,4 +151,5 @@ if __name__ == '__main__':
         exc(e)
     print('Server closed.\n')
 
-# TODO: Add "who am I" command.
+# TODO: Major: Rewrite clients/nicknames to objects/dict
+# TODO: Minor: Add "who am I" command.
