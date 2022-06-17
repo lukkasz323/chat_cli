@@ -4,40 +4,34 @@ from threading import Thread
 from chat_server_cfg import *
 from chat import exc, exc_traceback
 
-def cmd_slash():
+def cmd_slash(caller: socket.socket):
     broadcast(commands_descriptions)
 
-def cmd_chatters():
-    broadcast(f'Chatters: {nickname_list}')
+def cmd_chatters(caller: socket.socket):
+    broadcast(get_chatters())
 
-def cmd_kick(nickname: str):
-    if nickname in nickname_list:
-        index = nickname_list.index(nickname)
-        client = client_list[index]
-
+def cmd_kick(caller: socket.socket, nickname: str):
+    if nickname in chatters.values():
         kick_client(client)
     else:
         broadcast('Invalid nickname.')
 
 def kick_client(client: socket.socket):
-    index = client_list.index(client)
-    nickname = nickname_list[index]
-
     client.close()
-    client_list.pop(index)
-    nickname_list.pop(index)
+    chatters.pop(client)
     broadcast(f'{nickname} has left the server.')
-    print('Chatters:', nickname_list) # Debug
+    print(get_chatters())
 
-def change_nickname():
-    pass
+def get_chatters():
+    result = [v for v in chatters.values()]
+    return f'Chatters: {result}'
 
 # Send a message and source info to every client.
 def broadcast(msg, source='Server'):
     source = source.encode()
     if isinstance(msg, str):
         msg = msg.encode()
-    for client in client_list:
+    for client in chatters:
         client.sendall(source)
         time.sleep(0.1)
         client.sendall(msg)
@@ -45,46 +39,40 @@ def broadcast(msg, source='Server'):
     
 # Send a message and source info to a selected client.
 def unicast(msg, client: socket.socket, source='(PM) Server'):
-    index = client_list.index(client)
-    nickname = nickname_list[index]
-
     source = source.encode()
     if isinstance(msg, str):
         msg = msg.encode()
     client.sendall(source)
     time.sleep(0.1)
     client.sendall(msg)
-    print(f'Unicast to {nickname}: {msg}')
+    print(f'Unicast to {nickname}: {source} / {msg}')
 
 # Handler ran in a seperate thread for each client.
 def handler(client: socket.socket):
-    index = client_list.index(client)
-    nickname = nickname_list[index]
-
-    while True: 
+    while True:
         try:
             data = client.recv(1024)
-            decoded = data.decode()
-
-            # Handle client commands.
-            if decoded[0] == '/':
-                split = decoded.split()
-                if split[0] in commands:
-                    func = commands[split[0]][0]
-                    if func.__code__.co_argcount == 1:
-                        if len(split) > 1:
-                            func(split[1])
+            if data:
+                decoded = data.decode()
+                # Handle client commands.
+                if decoded[0] == '/':
+                    split = decoded.split()
+                    if split[0] in commands:
+                        func = commands[split[0]][0]
+                        if func.__code__.co_argcount > 1:
+                            if len(split) > 1:
+                                func(client, split[1])
+                            else:
+                                broadcast('This command requies an argument.')
                         else:
-                            broadcast('This command requies an argument.')
+                            func(client)
                     else:
-                        func()
+                        broadcast('Unknown command, type "/" for a list of commands.')
+                # Broadcast client messages.
                 else:
-                    broadcast('Unknown command, type "/" for a list of commands.')
-            # Broadcast client messages.
-            else:
-                if data:
-                    broadcast(data, nickname)
+                    broadcast(data, chatters[client])
         except:
+            print('XD1')
             exc_traceback()
             kick_client(client)
             break
@@ -94,8 +82,7 @@ if __name__ == '__main__':
     
     motd = 'Welcome to the server!'
     nickname_repetitions = 0
-    client_list = []
-    nickname_list = []
+    chatters = {} # Key -> socket (client), Value -> str (nickname) 
     commands = {
         '/'        : (cmd_slash, 'Print available commands.'),
         '/chatters': (cmd_chatters, 'Print online chatters.'),
@@ -129,12 +116,12 @@ if __name__ == '__main__':
                 # Receive and handle client info.
                 data = client.recv(1024) # 2. relay
                 nickname = data.decode()
-                if nickname in nickname_list:
+                if nickname in chatters.values():
                     nickname_repetitions += 1
                     nickname += str(nickname_repetitions)
                 print(f'{addr} has connected as {nickname}.')
-                client_list.append(client)
-                nickname_list.append(nickname)
+                chatters[client] = nickname
+                print(chatters)
                 broadcast(f'{nickname} has joined the server.')
 
                 # Send client a welcome message.
@@ -142,7 +129,7 @@ if __name__ == '__main__':
                 unicast(motd, client)
 
                 # Print an updated list of clients.
-                print('Chatters:', nickname_list)
+                print(get_chatters())
 
                 # Handle this client in a separate thread.
                 handler_thread = Thread(target=handler, args=(client, ))
@@ -151,5 +138,6 @@ if __name__ == '__main__':
         exc(e)
     print('Server closed.\n')
 
-# TODO: Major: Rewrite clients/nicknames to objects/dict
-# TODO: Minor: Add "who am I" command.
+# TODO: MAJOR: Fix cmd_kick()
+# TODO: Add "Is now know as" and renaming.
+# TODO: Add "who am I" command.
