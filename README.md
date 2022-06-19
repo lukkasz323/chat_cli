@@ -1,5 +1,5 @@
 # About
-A CLI (Command-line Interface) Chat Client.
+A CLI (Command-line Interface) Chat client / server.
 
 # How to run
 ## Client
