@@ -1,8 +1,6 @@
 # About
 A CLI (Command-line Interface) Chat Client.
 
-Supports only port 50001 connections at the moment.
-
 # How to run
 ## Client
 Run **"Start CLIENT.bat"** or:
@@ -14,3 +12,5 @@ Run **"Start SERVER.bat"** or:
 ```
 python chat_server.py
 ```
+### Settings
+Change server/client settings by editing "chat_server_cfg.py" and/or "chat_client_cfg.py".
