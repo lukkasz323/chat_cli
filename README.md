@@ -12,5 +12,5 @@ Run **"Start SERVER.bat"** or:
 ```
 python chat_server.py
 ```
-### Settings
+## Settings
 Change server/client settings by editing "chat_server_cfg.py" and/or "chat_client_cfg.py".
