@@ -3,5 +3,5 @@ build
 dist
 
 *.spec
-tests.py
+playground.py
 setup.py
