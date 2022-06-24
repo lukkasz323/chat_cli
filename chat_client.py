@@ -1,8 +1,8 @@
 import socket
 import time
 from threading import Thread
-from chat_client_cfg import *
 from chat import exc, exc_traceback
+from chat_client_cfg import HOST, PORT, nickname
 
 def receive(client):
     while True:
