@@ -1,54 +1,74 @@
-import socket
 import time
 from threading import Thread
-from chat_server_cfg import *
+from socket import socket, create_server
 from chat import exc, exc_traceback
+from chat_server_cfg import HOST, PORT, motd
 
-def cmd_slash(caller: socket.socket):
-    broadcast(commands_descriptions)
+class ServerData:
+    def __init__(self):
+        self.chatters = {} # Key -> socket (client), Value -> str (nickname)
+        self.commands_descriptions = f'Available commands:\n'
+        self.commands = {
+            '/'        : (cmd_slash, False, 'Print available commands.'),
+            '/chatters': (cmd_chatters, False, 'Print online chatters.'),
+            '/kick'    : (cmd_kick, True, 'Disconnects a specified chatter.')
+            }
+        
+        self.setup()
+        
+    def setup(self):
+        for k in self.commands:
+            self.commands_descriptions += f'{k} - {self.commands[k][2]}\n'
 
-def cmd_chatters(caller: socket.socket):
-    broadcast(get_chatters())
+def cmd_slash(caller: socket, server_data):
+    broadcast(server_data, server_data.commands_descriptions)
 
-def cmd_kick(caller: socket.socket, nickname: str):
-    if nickname in chatters.values():
-        kick_client(client)
+def cmd_chatters(caller: socket, server_data):
+    broadcast(server_data, get_chatters(server_data.chatters))
+
+def cmd_kick(caller: socket, server_data, arg: str):
+    if arg in server_data.chatters.values():
+        target = get_k_from_v(server_data.chatters, arg)
+        kick_client(server_data, target)
     else:
-        broadcast('Invalid nickname.')
+        broadcast(server_data, 'Invalid nickname.')
 
-def kick_client(client: socket.socket):
-    client.close()
-    chatters.pop(client)
-    broadcast(f'{nickname} has left the server.')
-    print(get_chatters())
+def kick_client(server_data, target: socket):
+    target.close()
+    server_data.chatters.pop(target)
+    broadcast(server_data, f'{server_data.chatters[target]} has left the server.')
+    print(get_chatters(server_data.chatters))
 
-def get_chatters():
-    result = [v for v in chatters.values()]
+def get_chatters(the_dict: dict):
+    result = [v for v in the_dict.values()]
     return f'Chatters: {result}'
 
+def get_k_from_v(the_dict: dict, x):
+    return [k for k, v in the_dict.items() if v == x][0]
+
 # Send a message and source info to every client.
-def broadcast(msg, source='Server'):
+def broadcast(server_data, msg, source='Server'):
     source = source.encode()
     if isinstance(msg, str):
         msg = msg.encode()
-    for client in chatters:
-        client.sendall(source)
+    for target in server_data.chatters:
+        target.sendall(source)
         time.sleep(0.1)
-        client.sendall(msg)
+        target.sendall(msg)
     print(f'Broadcast: {source} / {msg}')
     
 # Send a message and source info to a selected client.
-def unicast(msg, client: socket.socket, source='(PM) Server'):
+def unicast(chatters, target: socket, msg, source='(PM) Server'):
     source = source.encode()
     if isinstance(msg, str):
         msg = msg.encode()
-    client.sendall(source)
+    target.sendall(source)
     time.sleep(0.1)
-    client.sendall(msg)
-    print(f'Unicast to {nickname}: {source} / {msg}')
+    target.sendall(msg)
+    print(f'Unicast to {chatters[target]}: {source} / {msg}')
 
 # Handler ran in a seperate thread for each client.
-def handler(client: socket.socket):
+def handler(client: socket, server_data):
     while True:
         try:
             data = client.recv(1024)
@@ -57,48 +77,36 @@ def handler(client: socket.socket):
                 # Handle client commands.
                 if decoded[0] == '/':
                     split = decoded.split()
-                    if split[0] in commands:
-                        func = commands[split[0]][0]
-                        if func.__code__.co_argcount > 1:
+                    if split[0] in server_data.commands:
+                        func = server_data.commands[split[0]][0]
+                        is_arg_req = server_data.commands[split[0]][1]
+                        if is_arg_req:
                             if len(split) > 1:
-                                func(client, split[1])
+                                func(client, server_data, split[1])
                             else:
-                                broadcast('This command requies an argument.')
+                                broadcast(server_data, 'This command requies an argument.')
                         else:
-                            func(client)
+                            func(client, server_data)
                     else:
-                        broadcast('Unknown command, type "/" for a list of commands.')
+                        broadcast(server_data, 'Unknown command, type "/" for a list of commands.')
                 # Broadcast client messages.
                 else:
-                    broadcast(data, chatters[client])
+                    broadcast(server_data, data, server_data.chatters[client])
         except:
-            print('XD1')
             exc_traceback()
-            kick_client(client)
+            kick_client(server_data, client)
             break
 
-if __name__ == '__main__':
+def main():
     TOKEN = b'1168d420-6e9f-4caf-8956-baf7d8394d54' # Used for connection verification.
     
-    motd = 'Welcome to the server!'
-    nickname_repetitions = 0
-    chatters = {} # Key -> socket (client), Value -> str (nickname) 
-    commands = {
-        '/'        : (cmd_slash, 'Print available commands.'),
-        '/chatters': (cmd_chatters, 'Print online chatters.'),
-        '/kick'    : (cmd_kick, 'Disconnects a specified chatter.')
-        }
-
-    # Setup
-    commands_descriptions = f'Available commands:\n'
-    for k in commands:
-        commands_descriptions += f'{k} - {commands[k][1]}\n'
-
+    server_data = ServerData()
+        
     # [Server]
     print('[SERVER]\n')
     print('Starting server...')
     try:
-        with socket.create_server((HOST, PORT)) as server:
+        with create_server((HOST, PORT)) as server:
             print(f'Server hosted on {server.getsockname()}')
             server.listen()
             print("Server started.")
@@ -114,30 +122,36 @@ if __name__ == '__main__':
                     continue
 
                 # Receive and handle client info.
+                nickname_repetitions = 0
+                
                 data = client.recv(1024) # 2. relay
                 nickname = data.decode()
-                if nickname in chatters.values():
+                if nickname in server_data.chatters.values():
                     nickname_repetitions += 1
                     nickname += str(nickname_repetitions)
                 print(f'{addr} has connected as {nickname}.')
-                chatters[client] = nickname
-                print(chatters)
-                broadcast(f'{nickname} has joined the server.')
+                server_data.chatters[client] = nickname
+                broadcast(server_data, f'{nickname} has joined the server.')
 
                 # Send client a welcome message.
                 time.sleep(0.1)
-                unicast(motd, client)
+                unicast(server_data.chatters, client, motd)
 
                 # Print an updated list of clients.
-                print(get_chatters())
+                print(get_chatters(server_data.chatters))
 
                 # Handle this client in a separate thread.
-                handler_thread = Thread(target=handler, args=(client, ))
+                handler_thread = Thread(target=handler, args=(client, server_data))
                 handler_thread.start()
     except OSError as e: # Starting server on occupied address.
         exc(e)
     print('Server closed.\n')
 
-# TODO: MAJOR: Fix cmd_kick()
+if __name__ == '__main__':
+    main()
+
+# TODO: Fix "kick" command
 # TODO: Add "Is now know as" and renaming.
 # TODO: Add "who am I" command.
+# TODO: Add "show motd" command.
+# TODO: Add "change motd" command.
