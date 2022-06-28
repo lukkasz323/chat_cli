@@ -24,8 +24,6 @@ def cmd_slash(caller: socket, server_data):
     broadcast(server_data, server_data.commands_descriptions)
 
 def cmd_chatters(caller: socket, server_data):
-    print('XD1', type(caller), type(server_data.chatters)) #
-    print('XD2', caller, server_data.chatters) #
     broadcast(server_data, get_chatters(server_data.chatters))
 
 def cmd_kick(caller: socket, server_data, arg: str):
@@ -42,7 +40,6 @@ def kick_client(server_data, target: socket):
     print(get_chatters(server_data.chatters))
 
 def get_chatters(the_dict: dict):
-    print(the_dict) # <---------------- check this
     result = [v for v in the_dict.values()]
     return f'Chatters: {result}'
 
@@ -51,7 +48,6 @@ def get_k_from_v(the_dict: dict, x):
 
 # Send a message and source info to every client.
 def broadcast(server_data, msg, source='Server'):
-    print(type(server_data)) #
     source = source.encode()
     if isinstance(msg, str):
         msg = msg.encode()
