@@ -1,7 +1,7 @@
 import time
 from threading import Thread
 from socket import socket, create_server
-from chat import exc, exc_traceback
+from chat import exc, exc_traceback, get_chatters, get_k_from_v
 from chat_server_cfg import HOST, PORT, motd
 
 class ServerData:
@@ -38,13 +38,6 @@ def kick_client(server_data, target: socket):
     server_data.chatters.pop(target)
     broadcast(server_data, f'{server_data.chatters[target]} has left the server.')
     print(get_chatters(server_data.chatters))
-
-def get_chatters(the_dict: dict):
-    result = [v for v in the_dict.values()]
-    return f'Chatters: {result}'
-
-def get_k_from_v(the_dict: dict, x):
-    return [k for k, v in the_dict.items() if v == x][0]
 
 # Send a message and source info to every client.
 def broadcast(server_data, msg, source='Server'):
