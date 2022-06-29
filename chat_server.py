@@ -9,7 +9,7 @@ class ServerData:
         self.chatters = {} # Key -> socket (client), Value -> str (nickname)
         self.commands_descriptions = f'Available commands:\n'
         self.commands = {
-            '/'        : (cmd_slash, False, 'Print available commands.'),
+            '/help'    : (cmd_help, False, 'Print available commands.'),
             '/chatters': (cmd_chatters, False, 'Print online chatters.'),
             '/kick'    : (cmd_kick, True, 'Disconnects a specified chatter.')
             }
@@ -20,7 +20,7 @@ class ServerData:
         for k in self.commands:
             self.commands_descriptions += f'{k} - {self.commands[k][2]}\n'
 
-def cmd_slash(caller: socket, server_data):
+def cmd_help(caller: socket, server_data):
     broadcast(server_data, server_data.commands_descriptions)
 
 def cmd_chatters(caller: socket, server_data):
@@ -67,8 +67,7 @@ def handler(client: socket, server_data):
             data = client.recv(1024)
             if data:
                 decoded = data.decode()
-                # Handle client commands.
-                if decoded[0] == '/':
+                if decoded[0] == '/': # Handle client commands.
                     split = decoded.split()
                     if split[0] in server_data.commands:
                         func = server_data.commands[split[0]][0]
@@ -81,9 +80,8 @@ def handler(client: socket, server_data):
                         else:
                             func(client, server_data)
                     else:
-                        broadcast(server_data, 'Unknown command, type "/" for a list of commands.')
-                # Broadcast client messages.
-                else:
+                        broadcast(server_data, f'Unknown command, type "/help" for a list of commands.')
+                else: # Broadcast client messages.
                     broadcast(server_data, data, server_data.chatters[client])
         except:
             exc_traceback()
