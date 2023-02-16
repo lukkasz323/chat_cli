@@ -1,4 +1,4 @@
 # [Settings - Server]
-HOST = '127.0.0.1'
+HOST = ''
 PORT = 50001
 motd = 'Welcome to the server!'
